@@ -1,13 +1,12 @@
 import os
 import errno
-import pyarrow as pa
-import pyarrow.parquet as pq
 import pandas as pd
 from datetime import datetime
 import jsonlines
 
 from src.utility.logger import logger
 from src.utility import dict_tools
+
 
 def create_path(path):
     if not os.path.exists(os.path.dirname(path)):
@@ -46,6 +45,7 @@ def write_data(path, mode, data):
 
     return True
 
+
 def read_json_to_dict(path):
     try:
         with open(path) as f:
@@ -53,6 +53,7 @@ def read_json_to_dict(path):
     except Exception as e:
         logger.error(f'Error reading json to dict : {str(e)}')
         return {}
+
 
 def write_json_lines(path, mode, data):
     try:
@@ -68,11 +69,11 @@ def write_json_lines(path, mode, data):
     return True
 
 
-def read_json_lines(path,flatten):
+def read_json_lines(path, flatten=True):
     data = []
     try:
         with jsonlines.open(path) as reader:
-            for json_line in reader:
+            for json_line in reader.iter(skip_invalid=True):
                 if flatten:
                     json_line = dict_tools.flatten_json(json_line)
                 data.append(json_line)
@@ -80,3 +81,16 @@ def read_json_lines(path,flatten):
         logger.error(f'Error reading json lines from <{path}> : {str(e)}')
         return []
     return data
+
+
+pandas_format_conversion = {
+    "csv": pd.read_csv,
+    "parquet": pd.read_parquet,
+    "json": pd.read_json
+}
+
+def read_file_to_pdf(file, file_type):
+    if file_type == "json_lines":
+        return pandas_format_conversion[file_type](file, lines=True)
+    else:
+        return pandas_format_conversion[file_type]

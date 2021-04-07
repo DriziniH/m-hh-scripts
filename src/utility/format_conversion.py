@@ -5,8 +5,7 @@ from datetime import datetime
 from src.utility import io
 from src.utility.logger import logger
 
-
-def json_lines_to_pdf(path_json, dt = None):    
+def json_lines_to_pdf(path_json, dt=None):
     """Writes json lines from source path to pandas dataframe with time information
 
     Args:
@@ -50,3 +49,17 @@ def write_csv_to_parquet(path_csv, path_parquet):
 
     logger.info(f'Succesfully persisted parquet data to <{path_parquet}>')
     return True
+
+file_type_read_functions = {
+    "csv" : pd.read_csv,
+    "parquet" : pd.read_parquet,
+    "json": pd.read_json
+}
+
+def read_file_to_pdf(file, file_type):
+    try:
+        pdf = file_type_read_functions[file_type](file)
+    except Exception as e:
+        logger.error(f'Error reading file to pandas: {str(e)}')
+        return pd.DateFrame()
+    return pdf
