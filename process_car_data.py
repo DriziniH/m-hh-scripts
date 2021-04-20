@@ -10,9 +10,9 @@ from s3fs import S3FileSystem
 from src.utility.logger import logger
 from src.utility import elasticsearch
 
-hdfs_path = '/flink/car/raw/2021-04-08--10/'
-
-bucket_destination = "s3://eu-consumer/car/parquet"
+hdfs_path = '/flink/car/waiting-time/2021-04-20--11/'
+bucket_destination = 'C:\Showcase\Projekt\M-HH-scripts\data\consumer\waiting-time'#"s3://eu-consumer/car/parquet"
+index = "waiting-time"
 
 hdfs_client = InsecureClient('http://localhost:9870', user="hoeinghe")
 data = []
@@ -38,7 +38,7 @@ def update_time_information(row, timestamp):
 for file_name in fpaths:
     with hdfs_client.read(file_name) as reader:
         for json_line in jsonlines.Reader(reader.read().decode().split()).iter(skip_invalid=True):
-            row = update_time_information(json_line["value"], json_line["timestamp"])
+            row = update_time_information(json_line, json_line["timestamp"]) #json_line["value"]
             data.append(row)
 
 # Persist data to partitioned parquet file based on date
@@ -48,7 +48,8 @@ pq.write_to_dataset(pa.Table.from_pandas(pdf), bucket_destination,
 
 # Index files to elastic search
 elastic_data = elasticsearch.convert_to_json_elastic(data, ["id", "timestamp"], False)
-elasticsearch.upload_bulk_to_es("localhost", 9200, elastic_data, "car")
+elasticsearch.upload_bulk_to_es("localhost", 9200, elastic_data, index)
+
 
 
 
