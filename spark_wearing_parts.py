@@ -9,13 +9,10 @@ import plotly.graph_objs as go
 
 from src.utility import format_conversion, io, elasticsearch, spark_util
 
-destination = ""
-
 spark = spark_util.create_spark_aws_session()
 
-#s3a://eu-consumer/car-data/parquet/
-source_path = 'C:\Showcase\Projekt\M-HH-scripts\data\consumer\car'
-
+source_path = 's3a:/eu-consumer/car-data/parquet/'
+destination = 's3a:/eu-analysis/car/parquet'
 
 df = spark.read.parquet(source_path)
 grouped_df = df.groupBy(df['id'], df["year"], df["month"], df["day"])

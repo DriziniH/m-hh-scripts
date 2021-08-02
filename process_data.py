@@ -11,8 +11,7 @@ from src.utility.logger import logger
 from src.utility import elasticsearch
 
 hdfs_paths = ['/flink/car/raw/2021-04-24--13']
-# "s3://eu-consumer/car/parquet"
-bucket_destination = r'C:\Showcase\Projekt\M-HH-scripts\data\consumer\car\usa'
+bucket_destination = "s3://eu-consumer/car/parquet"
 index = "car"
 
 
@@ -46,13 +45,12 @@ for hdfs_path in hdfs_paths:
                 data.append(row)
 
 # # Persist data to partitioned parquet file based on date
-# pdf = pd.DataFrame(data)
-# pq.write_to_dataset(pa.Table.from_pandas(pdf), bucket_destination,
-#                     # filesystem=S3FileSystem(),
-#                     partition_cols=["year", "month", "day"])
+pdf = pd.DataFrame(data)
+pq.write_to_dataset(pa.Table.from_pandas(pdf), bucket_destination,
+                    # filesystem=S3FileSystem(),
+                    partition_cols=["year", "month", "day"])
 
 # Index files to elastic search
 elastic_data = elasticsearch.convert_to_json_elastic(
     data[0:200], ["id", "timestamp"], False)
 elasticsearch.upload_bulk_to_es("localhost", 9200, elastic_data, index)
-    #     data = []

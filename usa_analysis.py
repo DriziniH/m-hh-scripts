@@ -8,7 +8,7 @@ import jsonlines
 from src.utility import io, elasticsearch, spark_util
 
 spark = spark_util.create_spark_aws_session()
-df = spark.read.parquet(r'C:\Showcase\Projekt\M-HH-scripts\data\consumer\car\usa')
+df = spark.read.parquet("s3a:/usa-consumer/car")
 
 df_avg_mile = df.groupBy(df['model']).avg('consumptionMile')
 df_max_mph = df.groupBy(df['model']).max('mph')
@@ -24,5 +24,7 @@ avg_mile_elastic = elasticsearch.convert_to_json_elastic(
 max_mph_elastic = elasticsearch.convert_to_json_elastic(
     max_mph_json_lines, ['model'])
 
-elasticsearch.upload_bulk_to_es("localhost", 9200, avg_mile_elastic, "mile-avg-usa")
-elasticsearch.upload_bulk_to_es("localhost", 9200, avg_mile_elastic, "mph-max-usa")
+elasticsearch.upload_bulk_to_es(
+    "localhost", 9200, avg_mile_elastic, "mile-avg-usa")
+elasticsearch.upload_bulk_to_es(
+    "localhost", 9200, max_mph_elastic, "mph-max-usa")

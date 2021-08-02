@@ -9,9 +9,8 @@ from src.utility import io, elasticsearch, spark_util
 
 spark = spark_util.create_spark_aws_session()
 
-# 's3a://eu-consumer'
-s3_path = 'C:\Showcase\Projekt\M-HH-scripts\data\consumer\car'
-destination = 'C:\Showcase\Projekt\M-HH-scripts\data\\analytics\metrics'
+s3_path = 's3a:/eu-consumer/car/parquet'
+destination = 's3a:/eu-analysis/car/parquet'
 
 df = spark.read.parquet(s3_path)
 df_grouped = df.groupBy(df['id'], df["year"], df["month"], df["day"])
