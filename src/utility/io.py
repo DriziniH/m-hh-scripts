@@ -7,6 +7,29 @@ import jsonlines
 from src.utility.logger import logger
 from src.utility import dict_tools
 
+def read_local_car_data(path, append_time_information):
+    def update_time_information(row, timestamp):
+        date = datetime.fromtimestamp(timestamp/1000.0)
+        row.update({
+            "timestamp": timestamp,
+            "year": date.year,
+            "month": date.month,
+            "day": date.day,
+        })
+        return row
+
+
+    data = []
+
+    os.chdir(path)
+    for file in os.listdir():
+        with open(file, 'r') as f:
+            for json_line in jsonlines.Reader(f.read().split()).iter(skip_invalid=True):
+                row = update_time_information(
+                    json_line["value"], json_line["timestamp"])  # json_line (raw)
+                data.append(row)
+    return data
+
 
 def create_path(path):
     if not os.path.exists(os.path.dirname(path)):

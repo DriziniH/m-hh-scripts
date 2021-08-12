@@ -10,8 +10,8 @@ from s3fs import S3FileSystem
 from src.utility.logger import logger
 from src.utility import elasticsearch
 
-hdfs_paths = ['/flink/car/raw/2021-04-24--13']
-bucket_destination = "s3://eu-consumer/car/parquet"
+hdfs_paths = ['/flink/car/2021-08-06--07']
+bucket_destination = "C:\Masterarbeit\data\ds1"#"s3://eu-consumer/car/parquet"
 index = "car"
 
 
@@ -50,7 +50,7 @@ pq.write_to_dataset(pa.Table.from_pandas(pdf), bucket_destination,
                     # filesystem=S3FileSystem(),
                     partition_cols=["year", "month", "day"])
 
-# Index files to elastic search
-elastic_data = elasticsearch.convert_to_json_elastic(
-    data[0:200], ["id", "timestamp"], False)
-elasticsearch.upload_bulk_to_es("localhost", 9200, elastic_data, index)
+# # Index files to elastic search
+# elastic_data = elasticsearch.convert_to_json_elastic(
+#     data[0:200], ["id", "timestamp"], False)
+# elasticsearch.upload_bulk_to_es("localhost", 9200, elastic_data, index)
